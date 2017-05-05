@@ -24,12 +24,18 @@ object TreeNode {
       case _ => "|"
     } mkString "\t"
 
-    (node, siblings, uncles) match {
-      case (Some(TreeNode(data, Nil)), Nil, uncles) => _asciiDisplay(None, Nil, uncles, result :+ s"$prefix+-$data")
-      case (Some(TreeNode(data, Nil)), siblings, uncles) => _asciiDisplay(siblings.headOption, siblings.tail, uncles, result :+ s"$prefix+-$data")
-      case (Some(TreeNode(data, children)), siblings, uncles) => _asciiDisplay(children.headOption, children.tail, siblings +: uncles, result :+ s"$prefix+-$data")
-      case (None, Nil, _) if validUncles.size == 0 => result
-      case (None, Nil, _) => _asciiDisplay(validUncles.head.headOption, validUncles.head.tail, validUncles.tail, result :+ emptyLine)
+    node match {
+      case Some(TreeNode(data, Nil)) => siblings match {
+        case Nil => _asciiDisplay(None, Nil, uncles, result :+ s"$prefix+-$data")
+        case _ => _asciiDisplay(siblings.headOption, siblings.tail, uncles, result :+ s"$prefix+-$data")
+      }
+
+      case Some(TreeNode(data, children)) => _asciiDisplay(children.headOption, children.tail, siblings +: uncles, result :+ s"$prefix+-$data")
+
+      case None => validUncles match {
+        case Nil => result
+        case head :: tail => _asciiDisplay(head.headOption, head.tail, tail, result :+ emptyLine)
+      }
     }
   }
 
